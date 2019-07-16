@@ -1,0 +1,20 @@
+{
+  "root": "data\\logs",
+  "paths": {
+    "grabWeb": "grabWeb",
+    "testPing": "testPing",
+    "testSpeed": "testSpeed",
+    "processedFiles": "_processed"
+  },
+  "endpoint": {
+    "url": "https://<appsyncARN>.appsync-api.<awsRegion>.amazonaws.com/graphql",
+    "apiId": "<appsynAppId>",
+    "headers": {
+      "x-api-key": "<appsyncAPIKey>",
+      "Content-Type": "application/json"
+    }
+  },
+  "countryCode": "UK",
+  "postalCode": "SW1A 2AA",
+  "_comment": "Partial postcodes recommended - just identify the area.  This postcode is for Downing Street."
+}
