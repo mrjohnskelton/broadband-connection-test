@@ -1,8 +1,12 @@
 import requests
 import json
 import os
+import inspect
 
-with open('config.json') as config_file:
+#See https://stackoverflow.com/questions/50499/how-do-i-get-the-path-and-name-of-the-file-that-is-currently-executing
+baseDir= os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+
+with open(os.path.join(baseDir, '..', 'config.json')) as config_file:
     config = json.load(config_file)
 
 # The GraphQL query (with a few aditional bits included) itself defined as a multi-line string.       

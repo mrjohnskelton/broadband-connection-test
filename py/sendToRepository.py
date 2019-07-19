@@ -6,8 +6,12 @@ import shutil
 import graphql #Local module file
 import pytz
 from pytz import timezone
+import inspect
 
-with open('config.json') as config_file:
+#See https://stackoverflow.com/questions/50499/how-do-i-get-the-path-and-name-of-the-file-that-is-currently-executing
+baseDir= os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+
+with open(os.path.join(baseDir, '..', 'config.json')) as config_file:
     config = json.load(config_file)
 
 # Where we expect to find test result files to process
@@ -90,7 +94,7 @@ for file in files:
       fileCount = fileCount + 1
 
       #If we have _batchSize_ results, post the batch
-      #TODO Need to add "OR there are no more files left"
+      #TODO Need to add "OR there are no more source files left"
       if fileCount % batchSize == 0:
         result = graphql.batchCreatePing(batch)    
         if result != None:
@@ -102,6 +106,7 @@ for file in files:
 #Move the file to the processed list
 for bf in processedFiles:
   try:
+    #TODO Change to delete by config
     shutil.move(bf, processedFilesDir)
   except TypeError:
     print('Not a moveable file:\t', bf)
