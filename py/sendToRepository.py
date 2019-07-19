@@ -4,12 +4,18 @@ import os
 import datetime
 import shutil
 import graphql #Local module file
+import pytz
+from pytz import timezone
 
 with open('config.json') as config_file:
     config = json.load(config_file)
 
 # Where we expect to find test result files to process
-workDir=os.path.join(config['root'],config['paths']['testPing'])
+workDir=os.path.join(config['rootDir'],config['paths']['testPing'])
+
+#Set localtimezone
+utc = pytz.utc
+mytz = timezone(config['tz'])
 
 # Where to put the files that have been processed
 processedFilesDir = os.path.join(workDir,config['paths']['processedFiles'])
@@ -21,7 +27,8 @@ if not os.path.isdir(processedFilesDir):
 files = [ f for f in os.listdir(workDir) if os.path.isfile(os.path.join(workDir, f)) ]
 
 #Now work through those results, assemble batches of _batchSize_ results and then post each batch
-batchSize = 10
+# AppSync supports batches of 1..25
+batchSize = 20
 
 fileCount = 0
 batch = []
@@ -37,13 +44,15 @@ for file in files:
       payload = json.load(infile)
       payload['failed'] = False
 
-    except json.decoder.JSONDecodeError:
+    except ValueError:
       #No JSON in file because ping failed
       payload = {}
       payload['failed'] = True
 
+    #TypeError is more portable than JSONDecodeError
+    # https://stackoverflow.com/questions/44714046/python3-unable-to-import-jsondecodeerror-from-json-decoder
     except TypeError:
-      print(f'{file} is not a processable file')
+      print('Not a processable file:\t', file)
     
     #Earlier iterations of the ping gathering code 
     # didn't capture the timestamp as part of the payload
@@ -56,7 +65,9 @@ for file in files:
       fn_plus_ext = os.path.basename(file)
       fn_wo_ext = os.path.splitext(fn_plus_ext)[0]
       #date_time_str = '2018-06-29 17:08:00'
-      date_time_obj = datetime.datetime.strptime(fn_wo_ext, '%Y%m%d-%H%M%S').astimezone().isoformat()
+      date_time_obj = datetime.datetime.strptime(fn_wo_ext, '%Y%m%d-%H%M%S')
+      date_time_obj = mytz.localize(date_time_obj)
+      date_time_obj = date_time_obj.astimezone().isoformat()
       payload['datetime'] = date_time_obj
 
     #Add a UUID
@@ -82,7 +93,6 @@ for file in files:
       #TODO Need to add "OR there are no more files left"
       if fileCount % batchSize == 0:
         result = graphql.batchCreatePing(batch)    
-        print(result)
         if result != None:
           processedFiles.extend(batchFiles)
         batch = []
@@ -94,4 +104,4 @@ for bf in processedFiles:
   try:
     shutil.move(bf, processedFilesDir)
   except TypeError:
-    print(f'{file} is not a moveable file')
+    print('Not a moveable file:\t', bf)

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+OUTFILE=`date +%Y%m%d-%H%M%S.json`
+OUTDIR=/home/pi/logs/testPing
+ping -qDc 4 8.8.8.8 | awk \
+  'BEGIN{FS="[/=]"} \
+    /^rtt /{ \
+      minVal=gsub(/ /,"",$5)
+      maxVal=gsub(/ /,"",$6)
+      avMaxVal=gsub(/ /,"",$7)
+      print  "{\n\t" \
+        substr($1,index($1," ")+1,3)": \""$5"\",\n\t" \
+        $2": \""$6"\",\n\t" \
+        $3": \""$7"\",\n\t" \
+        $4": \"" substr($8,0,index($8," ")) \
+      "\"\n}" \
+    }' \
+  &> $OUTDIR/$OUTFILE

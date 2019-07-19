@@ -1,0 +1,20 @@
+{
+  "dependencies": {
+    "babel-loader": "^8.0.5",
+    "babel-preset-env": "^1.7.0",
+    "chromium": "^2.1.0",
+    "puppeteer": "^1.15.0"
+  },
+  "babel": {
+    "babelrc": true,
+    "plugins": [
+      "transform-es2017-modules-commonjs"
+    ],
+    "presets": [
+      "react",
+      "es2017",
+      "es2016",
+      "es2015"
+    ]
+  }
+}

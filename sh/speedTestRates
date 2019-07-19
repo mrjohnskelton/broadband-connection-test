@@ -1,0 +1,4 @@
+#!/bin/bash
+OUTFILE=`date +%Y%m%d-%H%M%S.json`
+OUTDIR=/home/pi/logs/testSpeed
+speedtest-cli --json --no-pre-allocate &> $OUTDIR/$OUTFILE
