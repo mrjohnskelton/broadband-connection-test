@@ -1,10 +1,8 @@
 import re
 import subprocess
 import helpers
-import json
 import platform
 import asyncio
-import os
 
 
 # Extract float from string using regular expression
@@ -64,9 +62,9 @@ uuid = helpers.getGuid()
 
 output = {}
 output['uuid'] = uuid
-output['min'] = float(min)
-output['max'] = float(max)
-output['av'] = float(av)
+output['min'] = float(min).toString()
+output['max'] = float(max).toString()
+output['av'] = float(av).toString()
 output['zip'] = config['zip']
 output['countryCode'] = config['countryCode']
 output['timestamp'] = helpers.getTimestamp()
