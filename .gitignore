@@ -1,4 +1,4 @@
 py/config.local.json
 .vscode
 data/*
-failToSend/*
+py/failToSend/**
