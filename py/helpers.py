@@ -4,6 +4,8 @@ import datetime
 import pyppeteer
 import requests
 import uuid
+import const  # for graphql queries
+
 
 
 def getPwd():
@@ -53,30 +55,6 @@ async def getStatus(url):
     return status
 
 
-# Post output to AWS API over http
-def sendOutputToAPI(output):
-    # Get config
-    config = getConfig()
-    # Get url
-    url = config['endpoint']['url']
-    # Get headers
-    headers = config['endpoint']['headers']
-    # Send data to API
-    try:
-        response = requests.post(url, headers=headers, data=json.dumps(output))
-        # Check if response is successful
-        if response.status_code == 200:
-            # If successful then return true
-            return True
-        else:
-            # If unsuccessful then return false
-            return False
-    except Exception as e:
-        print(e)
-        # If exception then return false
-        return False
-
-
 # Get globally unique identifier
 def getGuid():
     return str(uuid.uuid4())
@@ -101,3 +79,73 @@ def saveToFile(output):
     with open(''.join([
             filePath, sep, output['uuid'], '.json']), 'w') as outfile:
         json.dump(output, outfile)
+
+
+# Get list of files in directory
+def getFileList():
+    # Get config
+    config = getConfig()
+    # Get directory seperator in cross-platform safe way
+    sep = os.path.sep
+    pwd_ = getPwd()
+    # Construct file path to config using join
+    filePath = ''.join([
+          pwd_, sep,
+          config['failToSendPath']])
+    # Check if dir exists
+    if not os.path.isdir(filePath):
+        # Return empty list
+        return []
+    # Return list of files in directory
+    return os.listdir(filePath)
+
+
+# Post output to AWS API over http
+def sendOutputToAPI(output):
+    # Get config
+    config = getConfig()
+    ###
+    # Post individual results
+    try:
+        variable = {}
+        variable['data'] = output
+        request = requests.post(
+            config['endpoint']['url'],
+            json={
+              'query': const.getGraphQLMutation(),
+              'variables': variable
+            },
+            headers=config['endpoint']['headers']
+            )
+        if request.status_code == 200:
+            return request.json()
+        else:
+            raise Exception(
+                "Query failed to run by returning code of {}. {}"
+                .format(request.status_code, const.getGraphQLMutation()))
+    except requests.exceptions.SSLError:
+        print('No internet connection?')
+
+
+# Post output to AWS API over http
+def sendOutputToAPI2(output):
+    # Get config
+    config = getConfig()
+    # Get url
+    url = config['endpoint']['url']
+    # Get headers
+    headers = config['endpoint']['headers']
+    # Send data to API
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(output))
+        # Check if response is successful
+        if response.status_code == 200:
+            # If successful then return true
+            return True
+        else:
+            # If unsuccessful then return false
+            return False
+    except Exception as e:
+        print(e)
+        # If exception then return false
+        return False
