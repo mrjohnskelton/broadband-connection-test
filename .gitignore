@@ -3,3 +3,4 @@ py/config.local.json
 data/*
 py/failToSend/**
 py/logs/**
+py/__pycache__/**
