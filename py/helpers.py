@@ -100,10 +100,51 @@ def getFileList():
     return os.listdir(filePath)
 
 
-# Post output to AWS API over http
-def sendOutputToAPI(output):
+def logOutput(output):
     # Get config
     config = getConfig()
+    # check if key exists in dict
+    if 'logToFile' in config and config['logToFile']:
+        return logToFile(config, output)
+    else:
+        return logToAPI(config, output)
+
+
+def logToFile(config, output):
+    try:
+        # Get directory seperator in cross-platform safe way
+        sep = os.path.sep
+        pwd_ = getPwd()
+        # Construct file path to config using join
+        filePath = ''.join([
+              pwd_, sep,
+              config['logToFilePath']])
+        # Check if dir exists
+        if not os.path.isdir(filePath):
+            # If not then create it
+            os.makedirs(filePath)
+        # Get time in YYYYmmDD format
+        time = datetime.datetime.now().strftime("%Y%m%d")
+        filename = ''.join([
+            filePath, sep, time, '.csv'])
+        # Remember if we need to write headings
+        writeHeadings = not os.path.isfile(filePath + sep + time + '.csv')
+        # Save to file
+        with open(filename, 'a') as outfile:
+            if writeHeadings:
+                outfile.write(','.join(output.keys()) + '\n')
+            # Convert JSON to csv - assumes keys alsway parsed in same sequence
+            # if this turns out not to be the case then try
+            # dict(sorted(d.items())).keys() and .values()
+            outfile.write(','.join(output.values()) + '\n')
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
+
+# Post output to AWS API over http
+def logToAPI(config, output):
     ###
     # Post individual results
     try:
@@ -128,9 +169,7 @@ def sendOutputToAPI(output):
 
 
 # Post output to AWS API over http
-def sendOutputToAPI2(output):
-    # Get config
-    config = getConfig()
+def logToAPI2(config, output):
     # Get url
     url = config['endpoint']['url']
     # Get headers
