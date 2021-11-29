@@ -2,3 +2,4 @@ py/config.local.json
 .vscode
 data/*
 py/failToSend/**
+py/logs/**
