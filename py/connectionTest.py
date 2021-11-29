@@ -26,12 +26,13 @@ def extractFloat(string):
 
 
 # Ping a host
-def pingHost(host):
+def pingHost(host, noOfPings=1):
+    print(noOfPings)
     # Option for the number of packets as a function of
     param = '-n' if platform.system().lower() == 'windows' else '-c'
 
     ping = subprocess.Popen(
-        ["ping", param, "1", host],
+        ["ping", param, str(noOfPings), host],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE)
     out, error = ping.communicate()
@@ -56,15 +57,15 @@ def pingHost(host):
 
 
 config = helpers.getConfig()
-min, max, av = pingHost(config['host'])
+min, max, av = pingHost(config['host'], config['noOfPings'])
 # Get guid
 uuid = helpers.getGuid()
 
 output = {}
 output['uuid'] = uuid
-output['min'] = float(min).toString()
-output['max'] = float(max).toString()
-output['av'] = float(av).toString()
+output['min'] = str(float(min))
+output['max'] = str(float(max))
+output['av'] = str(float(av))
 output['zip'] = config['zip']
 output['countryCode'] = config['countryCode']
 output['timestamp'] = helpers.getTimestamp()
@@ -75,5 +76,5 @@ if 'statusPage' in config:
     output['status'] = loop.run_until_complete(coroutine)
 
 # Send output to API over http
-if not helpers.sendOutputToAPI(output):
+if not helpers.logOutput(output):
     helpers.saveToFile(output)
