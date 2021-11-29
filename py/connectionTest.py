@@ -27,7 +27,6 @@ def extractFloat(string):
 
 # Ping a host
 def pingHost(host, noOfPings=1):
-    print(noOfPings)
     # Option for the number of packets as a function of
     param = '-n' if platform.system().lower() == 'windows' else '-c'
 
