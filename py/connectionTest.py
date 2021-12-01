@@ -6,7 +6,7 @@ import asyncio
 
 
 # Extract float from string using regular expression
-def extractFloat(string):
+def extractStats(string):
     """
       For each regex:
         $1 = The whole number
@@ -14,12 +14,23 @@ def extractFloat(string):
         $3 = Fractional part with leading period
         $4 = Fractional part
     """
+    # rtt min/avg/max/mdev = 10.424/10.687/10.864/0.179 ms
     integerOrFloat = "(?=.)([+-]?([0-9]*)(\\.([0-9]+))?)"
-    reString = ''.join([
+    reStringWindows = ''.join([
         "Minimum = ", integerOrFloat, "ms, ",
         "Maximum = ", integerOrFloat, "ms, ",
         "Average = ", integerOrFloat, "ms"
     ])
+    reStringNix = ''.join([
+        "min/avg/max/mdev = ", integerOrFloat, "/",
+        integerOrFloat, "/",
+        integerOrFloat, "/",
+        integerOrFloat, " ms"
+    ])
+    if platform.system().lower() == 'windows':
+        reString = reStringWindows
+    else:
+        reString = reStringNix
     # Given pattern above, would return 3x 4 groups
     # we only want 1, 5 and 9 then
     return re.search(reString, string).group(1, 5, 9)
@@ -44,7 +55,7 @@ def pingHost(host, noOfPings=1):
             # If line contains "Average"
             if 'Average' in line:
                 # Return RTT
-                return extractFloat(line)
+                return extractStats(line)
     # If ping is unsuccessful
     else:
         # Return -1
