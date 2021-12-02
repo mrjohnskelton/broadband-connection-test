@@ -6,9 +6,26 @@ The author's set up is as follows:
 
 - a Raspberry Pi connected by ethernet cable to my Broadband router
   - runs the 'test' code as cron jobs
-  - seperately picks up the files containing test results and posts them to an AWS back-end
-- the AWS back end consists of:
-  - an AppSync/GraphQL API which stores the results in an AWS DynamoDB table
+  - uses tconfiguration to decide whether t osave outputs locally or send to
+    remote API (for Cloud back-end/analysis)
+  - back-end is WIP
+
+## Set Up and First Run
+
+To get chromium working on pi, some specific steps are required
+
+- [](https://stackoverflow.com/questions/53927815/oserror-errno-8-exec-format-error-using-chromedriver-with-selenium-and-linux)
+- [Get Chrome 65 armhf security updates installer](https://launchpad.net/ubuntu/trusty/+package/chromium-chromedriver)
+- To install _'direct'_ from url:
+
+    ```bash
+    TEMP_DEB="$(mktemp)" &&
+    wget -O "$TEMP_DEB" 'http://launchpadlibrarian.net/361669488/chromium-chromedriver_65.0.3325.181-0ubuntu0.14.04.1_armhf.deb' &&
+    sudo dpkg -i "$TEMP_DEB"
+    rm -f "$TEMP_DEB"
+      ```
+
+First run will downloadand install Chromium for pypetter so probably best to invoke first run manually.
 
 ## Set up automatic information gathering
 
@@ -63,3 +80,10 @@ To install python dependencies, run `sudo pip install -r py/requirements.txt`
   - A more accessible article on [How to use Cron in Linux](https://opensource.com/article/17/11/how-use-cron-linux)
 - Python
   - Using [pip requirements files](https://pip.pypa.io/en/stable/user_guide/#id1) to install all dependencies in one go
+
+## Python Insights Along the Way
+
+I'm still learning python so here are some notes along the way:
+
+- `python3 -m pip install - requiremetns.txt` to install python3 packages - `pip install...` may use python2
+- `source mypython/bin/activate` to active virtual env
