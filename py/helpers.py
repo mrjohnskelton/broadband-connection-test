@@ -5,7 +5,7 @@ import pyppeteer
 import requests
 import uuid
 import const  # for graphql queries
-
+import platform
 
 
 def getPwd():
@@ -36,23 +36,36 @@ def getTimestamp():
 
 # Use pyppeteer to extract an element from a web page
 async def getStatus(url):
-    # Create a browser
-    browser = await pyppeteer.launch()
-    # Create a new page
-    page = await browser.newPage()
-    # Navigate to url
-    await page.goto(url)
-    # Get the status of the page
-    selector = "#status_tile > ul > .ng-binding"
-    # Extract element using selector
-    element = await page.querySelector(selector)
-    if element:
-        status = await page.evaluate('(element) => element.innerText', element)
-    else:
-        status = 'Unknown'
-    # Close the browser
-    await browser.close()
-    return status
+    try:
+        if platform.system().lower() == 'windows':
+            # Create a browser
+            browser = await pyppeteer.launch()
+        else:
+            from selenium import webdriver
+            browser = webdriver.Chrome(
+                executable_path='/usr/lib/chromium-browser/' +
+                'chromedriver-v2.21-linux-armv7l')
+            # Create a browser
+            browser = await pyppeteer.launch()
+            # Create a new page
+            page = await browser.newPage()
+            # Navigate to url
+            await page.goto(url)
+            # Get the status of the page
+            selector = "#status_tile > ul > .ng-binding"
+            # Extract element using selector
+            element = await page.querySelector(selector)
+            if element:
+                status = await page.evaluate(
+                    '(element) => element.innerText', element)
+            else:
+                status = 'Unknown'
+            # Close the browser
+            await browser.close()
+            return status
+    except Exception as e:
+        print(e)
+        return 'Error'
 
 
 # Get globally unique identifier

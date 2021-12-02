@@ -39,3 +39,34 @@ def getGraphQLMutation():
             datetime
           }
         }"""
+
+
+def getReForIntegerOrFloat():
+    return "(?=.)([+-]?([0-9]*)(\\.([0-9]+))?)"
+
+
+# For each regex:
+#   $1 = The whole number
+#   $2 = Integer part
+#   $3 = Fractional part with leading period
+#   $4 = Fractional part
+def getReStringWindows():
+    return ''.join([
+          "Minimum = ", getReForIntegerOrFloat(), "ms, ",
+          "Maximum = ", getReForIntegerOrFloat(), "ms, ",
+          "Average = ", getReForIntegerOrFloat(), "ms"
+      ])
+
+
+# For each regex:
+#   $1 = The whole number
+#   $2 = Integer part
+#   $3 = Fractional part with leading period
+#   $4 = Fractional part
+def getReStringLinux():
+    return ''.join([
+        "min/avg/max/mdev = ", getReForIntegerOrFloat(), "/",
+        getReForIntegerOrFloat(), "/",
+        getReForIntegerOrFloat(), "/",
+        getReForIntegerOrFloat(), " ms"
+    ])
