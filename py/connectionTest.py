@@ -3,6 +3,7 @@ import subprocess
 import helpers
 import platform
 import asyncio
+import const
 
 
 # Extract float from string using regular expression
@@ -15,22 +16,10 @@ def extractStats(string):
         $4 = Fractional part
     """
     # rtt min/avg/max/mdev = 10.424/10.687/10.864/0.179 ms
-    integerOrFloat = "(?=.)([+-]?([0-9]*)(\\.([0-9]+))?)"
-    reStringWindows = ''.join([
-        "Minimum = ", integerOrFloat, "ms, ",
-        "Maximum = ", integerOrFloat, "ms, ",
-        "Average = ", integerOrFloat, "ms"
-    ])
-    reStringNix = ''.join([
-        "min/avg/max/mdev = ", integerOrFloat, "/",
-        integerOrFloat, "/",
-        integerOrFloat, "/",
-        integerOrFloat, " ms"
-    ])
     if platform.system().lower() == 'windows':
-        reString = reStringWindows
+        reString = const.getReStringWindows()
     else:
-        reString = reStringNix
+        reString = const.getReStringNix()
     # Given pattern above, would return 3x 4 groups
     # we only want 1, 5 and 9 then
     return re.search(reString, string).group(1, 5, 9)
@@ -53,7 +42,7 @@ def pingHost(host, noOfPings=1):
         # Iterate of each line in out
         for line in out:
             # If line contains "Average"
-            if 'Average' in line:
+            if 'Average' in line or 'min/avg' in line:
                 # Return RTT
                 return extractStats(line)
     # If ping is unsuccessful
@@ -80,10 +69,14 @@ output['zip'] = config['zip']
 output['countryCode'] = config['countryCode']
 output['timestamp'] = helpers.getTimestamp()
 
-if 'statusPage' in config:
+if ('testStatusPage' in config
+        and config['testStatusPage'] is True
+        and 'statusPage' in config):
     loop = asyncio.get_event_loop()
     coroutine = helpers.getStatus(config['statusPage'])
     output['status'] = loop.run_until_complete(coroutine)
+else:
+    output['status'] = 'Untested'
 
 # Send output to API over http
 if not helpers.logOutput(output):
