@@ -10,7 +10,9 @@ The author's set up is as follows:
     remote API (for Cloud back-end/analysis)
   - back-end is WIP
 
-## Set Up and First Run
+## Set Up and First Run - WIP
+
+Remember, need to chmod +x on `connectionTest.sh`
 
 To get chromium working on pi, some specific steps are required
 
