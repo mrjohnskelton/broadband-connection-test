@@ -63,7 +63,7 @@ def getReStringWindows():
 #   $2 = Integer part
 #   $3 = Fractional part with leading period
 #   $4 = Fractional part
-def getReStringLinux():
+def getReStringNix():
     return ''.join([
         "min/avg/max/mdev = ", getReForIntegerOrFloat(), "/",
         getReForIntegerOrFloat(), "/",

@@ -9,3 +9,4 @@ pyppeteer
 requests
 # subprocess
 uuid
+selenium
